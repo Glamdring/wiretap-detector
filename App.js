@@ -9,6 +9,12 @@ export default function App() {
   const COMPARE_IP_TASK = "bg.bozho.iprangewatcher.compareIP";
   const REFRESH_RANGES_TASK = "bg.bozho.iprangewatcher.refreshRanges";
   
+  const ASNS = {
+    "A1": "AS12716",
+    "Vivacom": "AS8866",
+    "Telenor": "AS9158"
+  }
+  
   BackgroundFetch.configure(
     {
       stopOnTerminate: false,
@@ -32,7 +38,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>IPRange Watcher will notify you if your current IP is outside the IP range of your mobile carrier, which may indicate a man-in-the-middle attack</Text>
       <StatusBar style="auto" />
     </View>
   );
