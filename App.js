@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 import {Notifications} from 'react-native-notifications';
-import Preference from 'react-native-preference';
+import DefaultPreference from 'react-native-default-preference';
 
 export default function App() {
   const COMPARE_IP_TASK = "bg.bozho.iprangewatcher.compareIP";
@@ -88,30 +88,30 @@ function compareIP() {
     notifyProblem();
 	}
 
-	var latestIp = Preference.get("latestIp");
+	var latestIp = DefaultPreference.get("latestIp");
 	if (ip != latestIp) {
-	  var ipRanges = Preference.get("ipRanges");
+	  var ipRanges = DefaultPreference.get("ipRanges");
 	  var insideConfiguredRanges = ipRanges.some((ipRange) => 
 		new IPRangeMatcher(ipRange).matches(ip));
 		
 	  if (!insideConfiguredRanges) {
-		notifyProblem();
+      notifyProblem();
 
-		var sendForAnalysis = Preference.get("sendForAnalysis");
-		if (sendForAnalysis) {
-		  // send IP, latestIp, telecomIdentifier and ipRanges for analysis
-		}
+      var sendForAnalysis = DefaultPreference.get("sendForAnalysis");
+      if (sendForAnalysis) {
+        // send IP, latestIp, telecomIdentifier and ipRanges for analysis
+      }
 	  }
-	  Preference.set("latestIp", ip);
+	  DefaultPreference.set("latestIp", ip);
 	}
 }
 
 function refreshRanges() {
-  var telecomASN = Preference.get("telecomASN");
+  var telecomASN = DefaultPreference.get("telecomASN");
   try {
   const response = await fetch("https://ip.guide/" + telecomASN);
     ipRanges = response.json()['routes']['v4'];
-    Preference.set("ipRanges", ipRanges);
+    DefaultPreference.set("ipRanges", ipRanges);
   } catch (ex) {
     console.log(ex);
   }

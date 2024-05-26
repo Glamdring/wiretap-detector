@@ -10,13 +10,13 @@
   },
   "dependencies": {
     "expo": "~51.0.8",
+    "expo-dev-client": "~4.0.14",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-background-fetch": "^4.2.5",
-    "react-native-notifications": "^5.1.0",
-    "react-native-preference": "^2.2.3",
-    "expo-dev-client": "~4.0.14"
+    "react-native-default-preference": "^1.4.4",
+    "react-native-notifications": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
