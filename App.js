@@ -1,8 +1,35 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import BackgroundFetch from 'react-native-background-fetch';
+import {Notifications} from 'react-native-notifications';
+import Preference from 'react-native-preference';
 
 export default function App() {
+  const COMPARE_IP_TASK = "bg.bozho.iprangewatcher.compareIP";
+  const REFRESH_RANGES_TASK = "bg.bozho.iprangewatcher.refreshRanges";
+  
+  BackgroundFetch.configure(
+    {
+      stopOnTerminate: false,
+      startOnBoot: true
+    },
+    async (taskId) => {
+	  switch (taskId) {
+      case COMPARE_IP_TASK: 
+        compareIP();
+        break;
+      case REFRESH_RANGES_TASK:
+        refreshRanges();
+        break;
+      }		  
+      BackgroundFetch.finish(taskId);
+    },
+  );
+
+  setupBackgroundJobs();
+  BackgroundFetch.start();
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
@@ -19,3 +46,73 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+function notifyProblem() {
+	let localNotification = Notifications.postLocalNotification({
+		body: "IP changed outside the range of your telecom or cannot be obtained. This may indicate your phone is connected to a malicous cell tower",
+		title: "IP changed outside the typical range",
+		silent: false,
+		fireDate: new Date(),
+	});
+}
+
+function setupBackgroundJobs() {
+  BackgroundFetch.scheduleTask({
+    taskId: COMPARE_IP_TASK,
+    periodic: true,
+    delay: 15 * 60 * 1000, // 15 minutes
+    requiredNetworkType: BackgroundFetch.NETWORK_TYPE_CELLULAR
+  });
+  
+  BackgroundFetch.scheduleTask({
+    taskId: REFRESH_RANGES_TASK,
+    periodic: true,
+    delay: 24 * 60 * 60 * 1000 // 24 hours
+  });
+}
+
+function compareIP() {
+	// TODO force 1.1.1.1 and 8.8.8.8. DNS in order to avoid getting the DNS intercepted
+  // alternatively, recommend setting 1.1.1.1
+	var ip;
+
+	try {
+    const response = await fetch("https://api.ipify.com");
+    ip = await response.text();
+	} catch (ex) {
+    console.error(ex);
+    notifyProblem();
+	}
+
+	if (!ip) {
+    notifyProblem();
+	}
+
+	var latestIp = Preference.get("latestIp");
+	if (ip != latestIp) {
+	  var ipRanges = Preference.get("ipRanges");
+	  var insideConfiguredRanges = ipRanges.some((ipRange) => 
+		new IPRangeMatcher(ipRange).matches(ip));
+		
+	  if (!insideConfiguredRanges) {
+		notifyProblem();
+
+		var sendForAnalysis = Preference.get("sendForAnalysis");
+		if (sendForAnalysis) {
+		  // send IP, latestIp, telecomIdentifier and ipRanges for analysis
+		}
+	  }
+	  Preference.set("latestIp", ip);
+	}
+}
+
+function refreshRanges() {
+  var telecomASN = Preference.get("telecomASN");
+  try {
+  const response = await fetch("https://ip.guide/" + telecomASN);
+    ipRanges = response.json()['routes']['v4'];
+    Preference.set("ipRanges", ipRanges);
+  } catch (ex) {
+    console.log(ex);
+  }
+}
