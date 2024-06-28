@@ -1,0 +1,4 @@
+{
+  "**/*.ts{,x}": ["prettier --config ./.prettierrc --write"],
+  "*.{json,md,graphql}": "prettier --config ./.prettierrc --write"
+}

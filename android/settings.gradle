@@ -1,4 +1,4 @@
-rootProject.name = 'iprangewatcher'
+rootProject.name = 'wiretapdetector'
 
 dependencyResolutionManagement {
   versionCatalogs {
