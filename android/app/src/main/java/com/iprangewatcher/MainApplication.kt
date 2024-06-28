@@ -1,4 +1,4 @@
-package com.iprangewatcher
+package com.wiretapdetector
 
 import android.app.Application
 import android.content.res.Configuration

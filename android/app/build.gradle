@@ -83,14 +83,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.iprangewatcher"
+    namespace "com.wiretapdetector"
     defaultConfig {
-        applicationId "com.iprangewatcher"
+        applicationId "com.wiretapdetector"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdkVersion rootProject.ext.compileSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "1.0.1"
     }
     signingConfigs {
         debug {
@@ -99,6 +99,9 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+    }
+    buildFeatures {
+        buildConfig=true
     }
     buildTypes {
         debug {

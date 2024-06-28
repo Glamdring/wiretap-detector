@@ -1,13 +1,21 @@
 {
   "expo": {
-    "name": "iprange-watcher",
-    "slug": "iprange-watcher",
-    "version": "1.0.0",
+    "name": "Wiretap Detector",
+    "slug": "wiretap-detector",
+    "version": "1.0.1",
+    "android": {
+      "package": "com.wiretapdetector",
+      "icon": "wiretap-detector-icon.png",
+      "versionCode": 12
+    },
+    "ios": {
+      "icon": "wiretap-detector-icon.png"
+    },
     "extra": {
       "eas": {
-        "projectId": "9ae4a265-4aaf-4b6a-99b0-955d10b28ee9"
+        "projectId": "b153c032-2e10-4e55-88c0-33bbe02e376e"
       }
     }
   },
-  "name": "iprange-watcher"
+  "name": "Wiretap Detector"
 }
