@@ -9,7 +9,8 @@
       "versionCode": 12
     },
     "ios": {
-      "icon": "wiretap-detector-icon.png"
+      "icon": "wiretap-detector-icon.png",
+      "bundleIdentifier": "com.wiretapdetector"
     },
     "extra": {
       "eas": {
