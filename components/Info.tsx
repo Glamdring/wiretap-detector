@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Button, MD3Theme, Modal, Portal, ProgressBar, Text, useTheme } from 'react-native-paper';
 import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import { getIp } from '../lib/get-ip';
@@ -159,7 +159,7 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
       ) : (
         <Text variant="bodyMedium">Choose mobile operator from config</Text>
       )}
-
+      { Platform.OS == 'ios' ? (<Text variant="bodyMedium">We recommend turning on Lockdown mode</Text>) : (<Text variant="bodyMedium">We recommend disabling 2G in the SIM card settings</Text>)}
       <View
         style={{
           paddingTop: 16,
