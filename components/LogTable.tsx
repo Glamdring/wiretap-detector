@@ -88,6 +88,7 @@ export const LogTable = ({ deps, clickedRefreshAndCompare }: LogTableProps) => {
         <DataTable.Header>
           <DataTable.Title style={{ flex: 2 }}>Created Date</DataTable.Title>
           <DataTable.Title style={{ flex: 2 }}>IP</DataTable.Title>
+          <DataTable.Title>Type</DataTable.Title>
           <DataTable.Title>Status</DataTable.Title>
         </DataTable.Header>
         {logs
@@ -98,6 +99,7 @@ export const LogTable = ({ deps, clickedRefreshAndCompare }: LogTableProps) => {
                     {Moment(new Date(l.createdDate)).format("DD.MM HH:mm")}
                   </DataTable.Cell>
                   <DataTable.Cell style={{ flex: 2 }}>{l.ipAddress}</DataTable.Cell>
+                  <DataTable.Cell>{l.cellularGeneration}</DataTable.Cell>
                   <DataTable.Cell>
                     {!l.insideIpRange ? (
                       <IconButton

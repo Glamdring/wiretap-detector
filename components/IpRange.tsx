@@ -22,21 +22,31 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
   const [loading, setLoading] = useState<boolean>();
   const [ipRange, setIpRange] = useState<string[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [carrier, setCarrier] = useState<string>();
 
   const loadDataCallback = useCallback(async () => {
     setLoading(true);
 
-    const ipRange = logId
-      ? JSON.parse((await logRepo.getLogById(deps.db, logId)).ipRange)
-      : (await ipRangesRepo.getIpRange(deps.db)).map(range => range.ip);
-
-    const msg = logId
-      ? (await logRepo.getLogById(deps.db, logId)).errorMessage
-      : '';
+    if (logId) {
+      const log = await logRepo.getLogById(deps.db, logId);
       
+      const ipRange = logId
+        ? JSON.parse(log.ipRange)
+        : (await ipRangesRepo.getIpRange(deps.db)).map(range => range.ip);
+
+      const msg = log.errorMessage;
+        
+      const carrier = log.carrier;
+      
+      setIpRange(ipRange);
+      setErrorMessage(msg);
+      setCarrier(carrier);
+    } else {
+      setIpRange(await ipRangesRepo.getIpRange(deps.db).map(range => range.ip));
+      setErrorMessage('');
+      setCarrier('');
+    }
     setLoading(false);
-    setIpRange(ipRange);
-    setErrorMessage(msg);
   }, []);
 
   useEffect(() => {
@@ -47,6 +57,7 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
     <View>
       {loading ? <ProgressBar indeterminate={true}></ProgressBar> : ''}
       {(errorMessage && errorMessage != '') ? (<Text variant="bodyLarge">Error: {errorMessage}</Text>) : ''}
+      <Text variant="bodyLarge">Detected operator: {carrier}</Text>
       <ScrollView style={{ height: 300, overflow: 'hidden' }}>
         {ipRange
           ? ipRange.map((ip, idx) => (

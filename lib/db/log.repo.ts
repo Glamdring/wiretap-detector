@@ -11,6 +11,8 @@ export type Log = {
   ipRange: string;
   ipAddress: string;
   errorMessage: string;
+  cellularGeneration: string;
+  carrier: string;
 };
 
 const createLogsTable = async (db: SQLiteDatabase) => {
@@ -21,7 +23,9 @@ const createLogsTable = async (db: SQLiteDatabase) => {
         insideIpRange BOOLEAN NOT NULL,
         ipRange TEXT NOT NULL,
         ipAddress TEXT NOT NULL,
-        errorMessage TEXT NOT NULL
+        errorMessage TEXT NOT NULL,
+        cellularGeneration TEXT NOT NULL,
+        carrier TEXT NOT NULL
     );`;
 
   await db.executeSql(query);
@@ -31,7 +35,7 @@ const getLogById = async (db: SQLiteDatabase, logId: number): Promise<Log> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage FROM ${tableName} WHERE id = ${logId} ORDER BY createdDate DESC`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier FROM ${tableName} WHERE id = ${logId} ORDER BY createdDate DESC`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -59,7 +63,7 @@ const getLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage FROM ${tableName} ORDER BY createdDate DESC`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier FROM ${tableName} ORDER BY createdDate DESC`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -82,7 +86,7 @@ const getLatestLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage FROM ${tableName} ORDER BY createdDate DESC LIMIT 2`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier FROM ${tableName} ORDER BY createdDate DESC LIMIT 2`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -103,9 +107,9 @@ const getLatestLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
 
 const saveLogItems = async (db: SQLiteDatabase, logs: Log[]) => {
   const insertQuery =
-    `INSERT INTO ${tableName}(createdDate, insideIpRange, ipRange, ipAddress, errorMessage ) values` +
+    `INSERT INTO ${tableName}(createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier) values` +
     logs
-      .map(i => `('${i.createdDate}', '${i.insideIpRange}', '${i.ipRange}', '${i.ipAddress}', '${i.errorMessage}')`)
+      .map(i => `('${i.createdDate}', '${i.insideIpRange}', '${i.ipRange}', '${i.ipAddress}', '${i.errorMessage}', '${i.cellularGeneration}', '${i.carrier}')`)
       .join(',');
 
   return db.executeSql(insertQuery);

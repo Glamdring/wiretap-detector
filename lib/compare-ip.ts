@@ -12,13 +12,16 @@ import { NetInfoStateType, fetch } from '@react-native-community/netinfo';
 export type IP = string;
 
 export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
-  const { type } = await fetch();
-  if (type !== NetInfoStateType.cellular) {
-    console.debug('network type', type);
+  const state = await fetch();
+  if (state.type !== NetInfoStateType.cellular) {
+    console.debug('network type', state.type);
     // returning "true" as wiretapping deteciton is not available for Wi-Fi
     return true;
   }
 
+  const cellularGeneration = state.details.cellularGeneration;
+  const carrier = state.details.carrier;
+  
   if (!db) {
     db = await getDBConnection();
   }
@@ -66,6 +69,8 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
       ipRange: JSON.stringify(ipRangesParsed),
       createdDate: new Date().toISOString(),
       errorMessage: errorMessage,
+      cellularGeneration: cellularGeneration,
+      carrier: carrier,
     },
   ]);
   return insideConfiguredRanges;
