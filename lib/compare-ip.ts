@@ -54,14 +54,6 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
       // send IP, latestIp, telecomIdentifier and ipRanges for analysis
     }
   }
-
-  // check connection type for a 2nd time, as it may have changed while waiting for the IP
-  const { currentConnectionType } = await fetch();
-  if (currentConnectionType !== NetInfoStateType.cellular) {
-    console.debug('network type', currentConnectionType);
-    // returning "true" as wiretapping deteciton is not available for Wi-Fi
-    return true;
-  }
   
   userSettings.latestIp = ip;
 
