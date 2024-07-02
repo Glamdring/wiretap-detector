@@ -21,6 +21,12 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
 
   const cellularGeneration = state.details.cellularGeneration;
   const carrier = state.details.carrier;
+  if (!cellularGeneration) {
+    cellularGeneration = "None";
+  }
+  if (!carrier) {
+    carrier = "Unavailable";
+  }
   
   if (!db) {
     db = await getDBConnection();
