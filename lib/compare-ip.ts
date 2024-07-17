@@ -8,6 +8,7 @@ import { ipRangesRepo } from './db/ip-ranges.repo';
 import { logRepo } from './db/log.repo';
 import { getDBConnection } from './db/db-service';
 import { NetInfoStateType, fetch } from '@react-native-community/netinfo';
+import { trace } from './traceroute';
 
 export type IP = string;
 
@@ -67,12 +68,10 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
   userSettings.latestIp = ip;
 
   await userSettingsRepo.updateUserSettingItems(db, [userSettings]);
-
-  const Traceroute = require('traceroute');
-
+  
   var trarerouteHops;
-  await Traceroute.trace('1.1.1.1', (err, hops) => {
-      tracerouteHops = hops;
+  await trace('1.1.1.1', 3, (hop) => {
+      tracerouteHops += hops + '\n';
   });
   
   await logRepo.saveLogItems(db, [
