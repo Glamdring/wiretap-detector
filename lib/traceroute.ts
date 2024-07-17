@@ -59,13 +59,13 @@ export const trace = async (dest: string, ttl: number, callback) => {
     if (time <= TIME_LIMIT && source) {
       resolveFirst(source, function(address, domains) {
         callback(ttl + '\t' + address + '\t' + domains + '\t' + time + 'ms');
-        if (source == dest || ttl == MAX_HOPS) process.exit(0);
-        trace(dest, ttl + 1);
+        if (source == dest || ttl == MAX_HOPS) return;
+        trace(dest, ttl + 1, callback);
       });
     } else {
       callback(ttl + '\t' + source);
-      if (source == dest || ttl == MAX_HOPS) process.exit(0);
-      trace(dest, ttl + 1);
+      if (source == dest || ttl == MAX_HOPS) return;
+      trace(dest, ttl + 1, callback);
     }
   });
 }
