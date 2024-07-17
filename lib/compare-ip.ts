@@ -68,6 +68,13 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
 
   await userSettingsRepo.updateUserSettingItems(db, [userSettings]);
 
+  const Traceroute = require('traceroute');
+
+  var trarerouteHops;
+  await Traceroute.trace('1.1.1.1', (err, hops) => {
+      tracerouteHops = hops;
+  });
+  
   await logRepo.saveLogItems(db, [
     {
       insideIpRange: insideConfiguredRanges,
@@ -77,6 +84,7 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
       errorMessage: errorMessage,
       cellularGeneration: cellularGeneration,
       carrier: carrier,
+      tracerouteHops: JSON.stringify(tracerouteHops),
     },
   ]);
   return insideConfiguredRanges;

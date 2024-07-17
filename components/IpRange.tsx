@@ -23,6 +23,7 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
   const [ipRange, setIpRange] = useState<string[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [carrier, setCarrier] = useState<string>();
+  const [tracerouteHops, setTracerouteHops] = useState<string>();
 
   const loadDataCallback = useCallback(async () => {
     setLoading(true);
@@ -30,21 +31,20 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
     if (logId) {
       const log = await logRepo.getLogById(deps.db, logId);
       
-      const ipRange = logId
-        ? JSON.parse(log.ipRange)
-        : (await ipRangesRepo.getIpRange(deps.db)).map(range => range.ip);
-
+      const ipRange = JSON.parse(log.ipRange);
       const msg = log.errorMessage;
-        
       const carrier = log.carrier;
+      const tracerouteHops = log.tracerouteHops;
       
       setIpRange(ipRange);
       setErrorMessage(msg);
       setCarrier(carrier);
+      setTracerouteHops(tracerouteHops);
     } else {
       setIpRange(await ipRangesRepo.getIpRange(deps.db).map(range => range.ip));
       setErrorMessage('');
       setCarrier('');
+      setTracerouteHops('');
     }
     setLoading(false);
   }, []);
@@ -66,6 +66,13 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
               </Text>
             ))
           : !loading && <Text variant="labelLarge">No ip range obtained from db</Text>}
+          
+          Traceroute hops:
+          {tracerouteHops
+          ? (<Text variant="labelLarge">
+                {tracerouteHops}
+              </Text>)
+          : !loading && <Text variant="labelLarge">No traceroute hops obtained from db</Text>}
       </ScrollView>
       <View
         style={{

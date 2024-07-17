@@ -98,7 +98,7 @@ export const LogTable = ({ deps, clickedRefreshAndCompare }: LogTableProps) => {
                   <DataTable.Cell style={{ flex: 2 }}>
                     {Moment(new Date(l.createdDate)).format("DD.MM HH:mm")}
                   </DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 2 }}>{l.ipAddress}</DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 2 }}>{l.ipAddress} </DataTable.Cell>
                   <DataTable.Cell>{l.cellularGeneration}</DataTable.Cell>
                   <DataTable.Cell>
                     {!l.insideIpRange ? (
