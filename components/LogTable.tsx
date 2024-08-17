@@ -86,19 +86,21 @@ export const LogTable = ({ deps, clickedRefreshAndCompare }: LogTableProps) => {
       {loading ? <ProgressBar indeterminate={true}></ProgressBar> : ''}
       <DataTable>
         <DataTable.Header>
-          <DataTable.Title style={{ flex: 2 }}>Created Date</DataTable.Title>
-          <DataTable.Title style={{ flex: 2 }}>IP</DataTable.Title>
-          <DataTable.Title>Status</DataTable.Title>
+          <DataTable.Title style={{ flex: 4 }}>Time</DataTable.Title>
+          <DataTable.Title style={{ flex: 5 }}>IP</DataTable.Title>
+          <DataTable.Title style={{ flex: 1 }}>Type</DataTable.Title>
+          <DataTable.Title style={{ flex: 2 }}>Status</DataTable.Title>
         </DataTable.Header>
         {logs
           ? logs.slice(from, to).map((l: Log) => {
               return (
                 <DataTable.Row key={l.id}>
-                  <DataTable.Cell style={{ flex: 2 }}>
-                    {Moment(new Date(l.createdDate)).format("DD.MM HH:mm")}
+                  <DataTable.Cell style={{ flex: 4 }}>
+                    {Moment(new Date(l.createdDate)).format('DD.MM HH:mm')}
                   </DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 2 }}>{l.ipAddress}</DataTable.Cell>
-                  <DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 5 }}>{l.ipAddress}&nbsp;</DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 1 }}>{l.cellularGeneration}</DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 2 }}>
                     {!l.insideIpRange ? (
                       <IconButton
                         icon={'alert'}

@@ -22,21 +22,34 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
   const [loading, setLoading] = useState<boolean>();
   const [ipRange, setIpRange] = useState<string[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [carrier, setCarrier] = useState<string>();
+  const [tracerouteHops, setTracerouteHops] = useState<string>();
+  const [cellInfo, setCellInfo] = useState<string>();
 
   const loadDataCallback = useCallback(async () => {
     setLoading(true);
 
-    const ipRange = logId
-      ? JSON.parse((await logRepo.getLogById(deps.db, logId)).ipRange)
-      : (await ipRangesRepo.getIpRange(deps.db)).map(range => range.ip);
+    if (logId) {
+      const log = await logRepo.getLogById(deps.db, logId);
 
-    const msg = logId
-      ? (await logRepo.getLogById(deps.db, logId)).errorMessage
-      : '';
-      
+      const ipRange = JSON.parse(log.ipRange);
+      const msg = log.errorMessage;
+      const carrier = log.carrier;
+      const tracerouteHops = log.tracerouteHops;
+
+      setIpRange(ipRange);
+      setErrorMessage(msg);
+      setCarrier(carrier);
+      setTracerouteHops(tracerouteHops);
+      setCellInfo(log.cellInfo);
+    } else {
+      setIpRange(await ipRangesRepo.getIpRange(deps.db).map(range => range.ip));
+      setErrorMessage('');
+      setCarrier('');
+      setTracerouteHops('');
+      setCellInfo('');
+    }
     setLoading(false);
-    setIpRange(ipRange);
-    setErrorMessage(msg);
   }, []);
 
   useEffect(() => {
@@ -46,7 +59,12 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
   return (
     <View>
       {loading ? <ProgressBar indeterminate={true}></ProgressBar> : ''}
-      {(errorMessage && errorMessage != '') ? (<Text variant="bodyLarge">Error: {errorMessage}</Text>) : ''}
+      {errorMessage && errorMessage != '' ? (
+        <Text variant="bodyLarge">Error: {errorMessage}</Text>
+      ) : (
+        ''
+      )}
+      <Text variant="bodyLarge">Detected operator: {carrier}</Text>
       <ScrollView style={{ height: 300, overflow: 'hidden' }}>
         {ipRange
           ? ipRange.map((ip, idx) => (
@@ -54,7 +72,21 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
                 {ip}
               </Text>
             ))
-          : !loading && <Text variant="labelLarge">No ip range obtained from db</Text>}
+          : !loading && <Text variant="labelLarge">No IP range obtained from db</Text>}
+      </ScrollView>
+      <ScrollView style={{ height: 50, overflow: 'hidden' }}>
+        {tracerouteHops ? (
+          <Text variant="labelLarge">{tracerouteHops}</Text>
+        ) : (
+          !loading && <Text variant="labelLarge">No traceroute hops obtained from db</Text>
+        )}
+      </ScrollView>
+      <ScrollView style={{ height: 50, overflow: 'hidden' }}>
+        {cellInfo ? (
+          <Text variant="labelLarge">{cellInfo}</Text>
+        ) : (
+          !loading && <Text variant="labelLarge">No cell info obtained from db</Text>
+        )}
       </ScrollView>
       <View
         style={{
