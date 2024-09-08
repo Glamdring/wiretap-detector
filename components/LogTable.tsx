@@ -101,7 +101,7 @@ export const LogTable = ({ deps, clickedRefreshAndCompare }: LogTableProps) => {
                   <DataTable.Cell style={{ flex: 5 }}>{l.ipAddress}&nbsp;</DataTable.Cell>
                   <DataTable.Cell style={{ flex: 1 }}>{l.cellularGeneration}</DataTable.Cell>
                   <DataTable.Cell style={{ flex: 2 }}>
-                    {!l.insideIpRange ? (
+                    {!l.insideIpRange || !l.unexpectedCellIdChange || !l.unknownTracerouteHop ? (
                       <IconButton
                         icon={'alert'}
                         size={25}

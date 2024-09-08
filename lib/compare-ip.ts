@@ -12,8 +12,10 @@ import { traceroute } from './traceroute';
 import Telephony from 'react-native-telephony-manager';
 import { Platform, PermissionsAndroid } from 'react-native';
 import GetLocation from 'react-native-get-location';
+import { initPermissions } from './init-permissions';
 
 export type IP = string;
+let ipRegex = /[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/;
 
 export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
   const state = await fetch();
@@ -72,20 +74,76 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
 
   await userSettingsRepo.updateUserSettingItems(db, [userSettings]);
 
-  var tracerouteHops = '';
+  var tracerouteHops = [];
   try {
     var fillHops = function (output) {
-      tracerouteHops += output;
+      console.log('Traceroute hop: ' + output);
+      var lines = output.split(/\r?\n|\r|\n/g);
+      for (const line of lines) {
+        if (line.includes('From')) {
+          let ip = line.match(ipRegex)[0];
+          tracerouteHops.push(ip);
+        }
+      }
     };
-    await traceroute('1.1.1.1', fillHops);
+    await traceroute('8.8.8.8', Platform.OS === 'android', fillHops);
   } catch (ex) {
     console.error(ex);
-    tracerouteHops += ex.message;
+    tracerouteHops.push(ex.message.replace("'", '"'));
   }
 
   var cellInfo = await getCellInfo();
 
-  console.log('Saving log with cellInfo ' + cellInfo);
+  var lat = '0';
+  var lon = '0';
+  var cellId = '0';
+
+  try {
+    console.log('Extracting cell info for ' + cellInfo.length + ' cells');
+    for (const info of cellInfo) {
+      console.log('Extracting data from cell: ' + JSON.stringify(info));
+      if (info.servingCellFlag == true) {
+        cellId = info.cid;
+      } else if (info.latitude) {
+        lat = info.latitude;
+        lon = info.longitude;
+      }
+    }
+  } catch (error) {
+    console.log('Failed to extract coordinates and cell ID ' + error);
+  }
+
+  var cellInfoString = JSON.stringify(cellInfo);
+  console.log('Saving log with cellInfo ' + cellInfoString);
+
+  var unexpectedCellIdChange = false;
+  var unknownTracerouteHop = false;
+  try {
+    var latestLogs = await logRepo.getLatestLogs(db);
+
+    for (const log of latestLogs) {
+      // check for changing cellIds within the same small area (sometimes CIDs change by 1, which appears to be normal behavior)
+      if (log.lat - lat < 0.0001 && log.lon - lon < 0.0001 && log.cellId - cellId > 1) {
+        unexpectedCellIdChange = true;
+      }
+      if (tracerouteHops.length > 0) {
+        if (!JSON.parse(log.tracerouteHops).includes(tracerouteHops[0])) {
+          unknownTracerouteHop = true;
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Failed to check for cellId change and unknown traceroute hops due to ' + error);
+  }
+
+  // ignore everything if wifi was turned on in the meantime
+  const secondState = await fetch();
+  if (secondState.type !== NetInfoStateType.cellular) {
+    console.debug('network type', secondState.type);
+    // returning "true" as wiretapping deteciton is not available for Wi-Fi
+    return true;
+  }
+
   await logRepo.saveLogItems(db, [
     {
       insideIpRange: insideConfiguredRanges,
@@ -95,76 +153,41 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
       errorMessage: errorMessage,
       cellularGeneration: cellularGeneration,
       carrier: carrier,
-      tracerouteHops: tracerouteHops,
-      cellInfo: cellInfo,
+      tracerouteHops: JSON.stringify(tracerouteHops),
+      cellInfo: cellInfoString,
+      cellId: cellId,
+      lat: lat,
+      lon: lon,
+      unexpectedCellIdChange: unexpectedCellIdChange,
+      unknownTracerouteHop: unknownTracerouteHop,
     },
   ]);
   return insideConfiguredRanges;
 };
 
 async function getCellInfo() {
-  var cellInfo = '';
+  const cellInfo = [];
+
   try {
     if (Platform.OS === 'android') {
-      try {
-        var hasBackgroundPermission = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
-        );
-        var hasPermission = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        );
-        if (!hasBackgroundPermission) {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.ACCESS_BACKGROUND_LOCATION,
-            {
-              title: 'Location Permission',
-              message:
-                'In order to get cellular info, ' +
-                'the app needs permission to access the device location',
-              buttonNeutral: 'Ask Me Later',
-              buttonNegative: 'Cancel',
-              buttonPositive: 'OK',
-            }
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            hasBackgroundPermission = true;
-          }
-        } else if (!hasPermission) {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-              title: 'Location Permission',
-              message:
-                'In order to get cellular info, ' +
-                'the app needs permission to access the device location',
-              buttonNeutral: 'Ask Me Later',
-              buttonNegative: 'Cancel',
-              buttonPositive: 'OK',
-            }
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            hasPermission = true;
-          }
-        }
-      } catch (err) {
-        console.warn(err);
-      }
+      await initPermissions();
+
+      var hasBackgroundPermission = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+      );
+      var hasPermission = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
 
       if (hasBackgroundPermission || hasPermission) {
         await Telephony.getCellInfo(cellInfos => {
           cellInfos.map(info => {
             console.log('Cell identity:' + JSON.stringify(info.cellIdentity));
-            cellInfo += JSON.stringify(info.cellIdentity) + '\n';
+            cellInfo.push(info.cellIdentity);
           });
         });
 
-        cellInfo +=
-          'GPS Coordinates:' +
-          JSON.stringify(
-            await GetLocation.getCurrentPosition({
-              timeout: 10000,
-            })
-          );
+        cellInfo.push(await GetLocation.getCurrentPosition({ timeout: 10000 }));
       }
     }
   } catch (ex) {

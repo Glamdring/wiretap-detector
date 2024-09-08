@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LogTable } from './components/LogTable';
 import { ipRangesRepo } from './lib/db/ip-ranges.repo';
 import { refreshRanges } from './lib/get-ranges';
+import { initPermissions } from './lib/init-permissions';
 
 const styles = StyleSheet.create({
   content: {
@@ -45,7 +46,6 @@ export default function App() {
 
   const onDismissSnackBar = () => setVisibleSnackbar(false);
 
-  // requestNotificationPermission();
   const loadDataCallback = useCallback(async () => {
     try {
       const dbDep = await getDBConnection();
@@ -67,6 +67,8 @@ export default function App() {
       }
 
       setDb(dbDep);
+
+      initPermissions();
     } catch (error) {
       console.error(error);
     }
@@ -138,27 +140,3 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
-
-const requestNotificationPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      PermissionsAndroid.check('android.permission.POST_NOTIFICATIONS')
-        .then(response => {
-          if (!response) {
-            PermissionsAndroid.request('android.permission.POST_NOTIFICATIONS', {
-              title: 'Notification',
-              message: 'App needs access to your notification ' + 'so you can get Updates',
-              buttonNeutral: 'Ask Me Later',
-              buttonNegative: 'Cancel',
-              buttonPositive: 'OK',
-            });
-          }
-        })
-        .catch(err => {
-          console.error('Notification Error=====>', err);
-        });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-};

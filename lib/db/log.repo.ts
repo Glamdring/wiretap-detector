@@ -15,6 +15,11 @@ export type Log = {
   carrier: string;
   tracerouteHops: string;
   cellInfo: string;
+  cellId: string;
+  lat: string;
+  lon: string;
+  unexpectedCellIdChange: boolean;
+  unknownTracerouteHop: boolean;
 };
 
 const createLogsTable = async (db: SQLiteDatabase) => {
@@ -29,7 +34,12 @@ const createLogsTable = async (db: SQLiteDatabase) => {
         cellularGeneration TEXT NOT NULL,
         carrier TEXT NOT NULL,
         tracerouteHops TEXT NOT NULL,
-        cellInfo TEXT NOT NULL
+        cellInfo TEXT NOT NULL,
+        cellId TEXT NOT NULL,
+        lat TEXT NOT NULL,
+        lon TEXT NOT NULL,
+        unexpectedCellIdChange BOOLEAN NOT NULL,
+        unknownTracerouteHop BOOLEAN NOT NULL
     );`;
 
   await db.executeSql(query);
@@ -39,7 +49,7 @@ const getLogById = async (db: SQLiteDatabase, logId: number): Promise<Log> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo FROM ${tableName} WHERE id = ${logId} ORDER BY createdDate DESC`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo, cellId, lat, lon, unexpectedCellIdChange, unknownTracerouteHop FROM ${tableName} WHERE id = ${logId} ORDER BY createdDate DESC`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -67,7 +77,7 @@ const getLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo FROM ${tableName} ORDER BY createdDate DESC`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo, cellId, lat, lon, unexpectedCellIdChange, unknownTracerouteHop FROM ${tableName} ORDER BY createdDate DESC`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -90,7 +100,7 @@ const getLatestLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
   try {
     const logs: Log[] = [];
     const results = await db.executeSql(
-      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo FROM ${tableName} ORDER BY createdDate DESC LIMIT 2`
+      `SELECT rowid as id, createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo, cellId, lat, lon, unexpectedCellIdChange, unknownTracerouteHop FROM ${tableName} ORDER BY createdDate DESC LIMIT 2`
     );
     results.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
@@ -111,11 +121,11 @@ const getLatestLogs = async (db: SQLiteDatabase): Promise<Log[]> => {
 
 const saveLogItems = async (db: SQLiteDatabase, logs: Log[]) => {
   const insertQuery =
-    `INSERT INTO ${tableName}(createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo) values` +
+    `INSERT INTO ${tableName}(createdDate, insideIpRange, ipRange, ipAddress, errorMessage, cellularGeneration, carrier, tracerouteHops, cellInfo, cellId, lat, lon, unexpectedCellIdChange, unknownTracerouteHop) values` +
     logs
       .map(
         i =>
-          `('${i.createdDate}', '${i.insideIpRange}', '${i.ipRange}', '${i.ipAddress}', '${i.errorMessage}', '${i.cellularGeneration}', '${i.carrier}', '${i.tracerouteHops}', '${i.cellInfo}')`
+          `('${i.createdDate}', '${i.insideIpRange}', '${i.ipRange}', '${i.ipAddress}', '${i.errorMessage}', '${i.cellularGeneration}', '${i.carrier}', '${i.tracerouteHops}', '${i.cellInfo}', '${i.cellId}', '${i.lat}', '${i.lon}', '${i.unexpectedCellIdChange}', '${i.unknownTracerouteHop}')`
       )
       .join(',');
 

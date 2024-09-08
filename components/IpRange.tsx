@@ -25,6 +25,9 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
   const [carrier, setCarrier] = useState<string>();
   const [tracerouteHops, setTracerouteHops] = useState<string>();
   const [cellInfo, setCellInfo] = useState<string>();
+  const [cellId, setCellId] = useState<string>();
+  const [lat, setLat] = useState<string>();
+  const [lon, setLon] = useState<string>();
 
   const loadDataCallback = useCallback(async () => {
     setLoading(true);
@@ -42,12 +45,18 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
       setCarrier(carrier);
       setTracerouteHops(tracerouteHops);
       setCellInfo(log.cellInfo);
+      setCellId(log.cellId);
+      setLat(log.lat);
+      setLon(log.lon);
     } else {
       setIpRange(await ipRangesRepo.getIpRange(deps.db).map(range => range.ip));
       setErrorMessage('');
       setCarrier('');
       setTracerouteHops('');
       setCellInfo('');
+      setCellId('');
+      setLat('');
+      setLon('');
     }
     setLoading(false);
   }, []);
@@ -64,26 +73,28 @@ export const IpRangeComponent = ({ logId, pressedCancel, deps }: IpRangeProps) =
       ) : (
         ''
       )}
-      <Text variant="bodyLarge">Detected operator: {carrier}</Text>
-      <ScrollView style={{ height: 300, overflow: 'hidden' }}>
+      <Text variant="bodyLarge">
+        Detected operator: {carrier}, Cell ID: {cellId} ({lat}, {lon})
+      </Text>
+      <ScrollView style={{ height: 100, overflow: 'hidden' }}>
         {ipRange
           ? ipRange.map((ip, idx) => (
-              <Text variant="labelLarge" key={idx}>
+              <Text variant="labelMedium" key={idx}>
                 {ip}
               </Text>
             ))
           : !loading && <Text variant="labelLarge">No IP range obtained from db</Text>}
       </ScrollView>
-      <ScrollView style={{ height: 50, overflow: 'hidden' }}>
+      <ScrollView style={{ height: 40, overflow: 'hidden' }}>
         {tracerouteHops ? (
-          <Text variant="labelLarge">{tracerouteHops}</Text>
+          <Text variant="labelMedium">{tracerouteHops}</Text>
         ) : (
           !loading && <Text variant="labelLarge">No traceroute hops obtained from db</Text>
         )}
       </ScrollView>
-      <ScrollView style={{ height: 50, overflow: 'hidden' }}>
+      <ScrollView style={{ height: 220, overflow: 'hidden' }}>
         {cellInfo ? (
-          <Text variant="labelLarge">{cellInfo}</Text>
+          <Text variant="labelSmall">{cellInfo}</Text>
         ) : (
           !loading && <Text variant="labelLarge">No cell info obtained from db</Text>
         )}

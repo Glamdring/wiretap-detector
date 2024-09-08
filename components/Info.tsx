@@ -75,7 +75,12 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
     try {
       const logs = await logRepo.getLatestLogs(deps.db);
       logs.forEach(result => {
-        if (!result.insideIpRange && result.ipAddress != 'Unavailable') {
+        if (
+          (!result.insideIpRange ||
+            !result.unexpectedCellIdChange ||
+            !result.unknownTracerouteHop) &&
+          result.ipAddress != 'Unavailable'
+        ) {
           setWiretappingDetected(true);
         }
       });
@@ -108,7 +113,7 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
   const loadAsnCallback = useCallback(async () => {
     await getSelectedAsn();
   }, []);
-  
+
   const loadWiretappingLabelCallaback = useCallback(async () => {
     await getLatestLogs();
   }, []);
@@ -133,10 +138,11 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
     await refreshRanges(deps.db);
     setLoading(true);
     const ip = await getIp();
-    setLoading(false);
     setIp(ip);
 
     const insideIpRange = await compareIP(deps.db);
+
+    setLoading(false);
 
     clickedRefreshAndCompare(insideIpRange);
     return insideIpRange;
@@ -159,7 +165,11 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
       ) : (
         <Text variant="bodyMedium">Choose mobile operator from config</Text>
       )}
-      { Platform.OS == 'ios' ? (<Text variant="bodyMedium">We recommend turning on Lockdown mode</Text>) : (<Text variant="bodyMedium">We recommend disabling 2G in the SIM card settings</Text>)}
+      {Platform.OS == 'ios' ? (
+        <Text variant="bodyMedium">We recommend turning on Lockdown mode</Text>
+      ) : (
+        <Text variant="bodyMedium">We recommend disabling 2G in the SIM card settings</Text>
+      )}
       <View
         style={{
           paddingTop: 16,
