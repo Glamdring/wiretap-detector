@@ -48,6 +48,7 @@ export const AddMobileOperator = ({
 
   const [name, setName] = useState<string>();
   const [asn, setAsn] = useState<string>();
+  const [countryCode, setCountryCode] = useState<string>();
   const [errors, setErrors] = useState<FormErrors>({});
   useEffect(() => {
     if (!editAsn) {
@@ -56,10 +57,11 @@ export const AddMobileOperator = ({
 
     setName(editAsn.operatorName);
     setAsn(editAsn.asn);
+    setCountryCode(editAsn.countryCode);
   }, [editAsn]);
 
   const handleChange = (
-    field: 'asn' | 'name',
+    field: 'asn' | 'name' | 'countryCode',
     e: NativeSyntheticEvent<TextInputChangeEventData>
   ) => {
     switch (field) {
@@ -67,6 +69,8 @@ export const AddMobileOperator = ({
         return setAsn(e.nativeEvent.text);
       case 'name':
         return setName(e.nativeEvent.text);
+      case 'countryCode':
+        return setCountryCode(e.nativeEvent.text);
     }
   };
 
@@ -78,22 +82,26 @@ export const AddMobileOperator = ({
 
     if (editAsn) {
       await mobileOperatorsRepo.updateAsnItems(deps.db, [
-        { id: editAsn.id, asn, operatorName: name },
+        { id: editAsn.id, asn, operatorName: name, countryCode: countryCode },
       ]);
     } else {
-      await mobileOperatorsRepo.saveAsnItems(deps.db, [{ asn, operatorName: name }]);
+      await mobileOperatorsRepo.saveAsnItems(deps.db, [
+        { asn, operatorName: name, countryCode: countryCode },
+      ]);
     }
     const asns = await mobileOperatorsRepo.getAsns(deps.db);
     const savedAsn = asns.find(a => a.asn === editAsn?.asn || asn);
     onClickSave(savedAsn);
   };
 
-  const hasError = (field: 'asn' | 'name') => {
+  const hasError = (field: 'asn' | 'name' | 'countryCode') => {
     switch (field) {
       case 'asn':
         return !!errors?.asn;
       case 'name':
         return !!errors?.name;
+      case 'countryCode':
+        return !!errors?.countryCode;
     }
   };
 
@@ -102,6 +110,7 @@ export const AddMobileOperator = ({
       ...errors,
       asn: !asn ? 'ASN is required!' : undefined,
       name: !name ? 'Operator name is required!' : undefined,
+      countryCode: !countryCode ? 'Country code is required!' : undefined,
     });
 
     return errors;
@@ -131,6 +140,19 @@ export const AddMobileOperator = ({
             error={hasError('asn')}
           />
           {errors.asn ? <Text style={{ color: theme.colors.error }}>ASN is required</Text> : ''}
+        </View>
+        <View>
+          <TextInput
+            value={countryCode}
+            onChange={e => handleChange('countryCode', e)}
+            label={'Country code'}
+            error={hasError('countryCode')}
+          />
+          {errors.countryCode ? (
+            <Text style={{ color: theme.colors.error }}>Country code is required</Text>
+          ) : (
+            ''
+          )}
         </View>
         <View style={styles.buttonContainer}>
           <Button

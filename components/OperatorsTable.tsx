@@ -145,7 +145,9 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
                 >
                   <DataTable.Cell>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text>{asn.operatorName}</Text>
+                      <Text>
+                        {asn.operatorName} ({asn.countryCode})
+                      </Text>
                       {asn.id === userSetting?.operatorId ? (
                         <Icon size={20} source={'check'}></Icon>
                       ) : (
