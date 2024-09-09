@@ -6,7 +6,7 @@
     "android": {
       "package": "com.wiretapdetector",
       "icon": "wiretap-detector-icon.png",
-      "versionCode": 54
+      "versionCode": 55
     },
     "ios": {
       "icon": "wiretap-detector-icon.png",

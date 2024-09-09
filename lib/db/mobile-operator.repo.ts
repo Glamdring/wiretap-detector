@@ -43,7 +43,7 @@ const getAsns = async (db: SQLiteDatabase): Promise<AsnDb[]> => {
 
 const saveAsnItems = async (db: SQLiteDatabase, asnItems: AsnDb[]) => {
   const insertQuery =
-    `INSERT INTO ${tableName}(asn, operatorName) values` +
+    `INSERT INTO ${tableName}(asn, operatorName, countryCode) values` +
     asnItems.map(i => `('${i.asn}', '${i.operatorName}', '${i.countryCode}')`).join(',');
 
   return db.executeSql(insertQuery);
@@ -51,7 +51,7 @@ const saveAsnItems = async (db: SQLiteDatabase, asnItems: AsnDb[]) => {
 
 const updateAsnItems = async (db: SQLiteDatabase, asnItems: AsnDb[]) => {
   const insertQuery =
-    `REPLACE INTO ${tableName}(rowid, asn, operatorName) values` +
+    `REPLACE INTO ${tableName}(rowid, asn, operatorName, countryCode) values` +
     asnItems.map(i => `('${i.id}', '${i.asn}', '${i.operatorName}', '${i.countryCode}')`).join(',');
 
   return db.executeSql(insertQuery);
