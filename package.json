@@ -27,7 +27,7 @@
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-background-fetch": "^4.2.5",
-    "react-native-child-process-exec": "^0.1.21",
+    "react-native-child-process-exec": "^0.1.22",
     "react-native-default-preference": "^1.4.4",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-get-location": "^5.0.0",
