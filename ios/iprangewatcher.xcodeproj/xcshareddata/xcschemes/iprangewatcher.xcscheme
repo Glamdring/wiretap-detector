@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "iprangewatcher.app"
-               BlueprintName = "iprangewatcher"
-               ReferencedContainer = "container:iprangewatcher.xcodeproj">
+               BuildableName = "wiretapdetector.app"
+               BlueprintName = "wiretapdetector"
+               ReferencedContainer = "container:wiretapdetector.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "iprangewatcherTests.xctest"
-               BlueprintName = "iprangewatcherTests"
-               ReferencedContainer = "container:iprangewatcher.xcodeproj">
+               BuildableName = "wiretapdetectorTests.xctest"
+               BlueprintName = "wiretapdetectorTests"
+               ReferencedContainer = "container:wiretapdetector.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "iprangewatcher.app"
-            BlueprintName = "iprangewatcher"
-            ReferencedContainer = "container:iprangewatcher.xcodeproj">
+            BuildableName = "wiretapdetector.app"
+            BlueprintName = "wiretapdetector"
+            ReferencedContainer = "container:wiretapdetector.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "iprangewatcher.app"
-            BlueprintName = "iprangewatcher"
-            ReferencedContainer = "container:iprangewatcher.xcodeproj">
+            BuildableName = "wiretapdetector.app"
+            BlueprintName = "wiretapdetector"
+            ReferencedContainer = "container:wiretapdetector.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
