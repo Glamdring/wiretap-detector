@@ -3,28 +3,6 @@ import { Platform, PermissionsAndroid } from 'react-native';
 export const initPermissions = async () => {
   if (Platform.OS === 'android') {
     try {
-      var hasBackgroundPermission = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
-      );
-
-      if (!hasBackgroundPermission) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-          {
-            title: 'Location Permission',
-            message:
-              'In order to get cellular info, ' +
-              'the app needs permission to access the device location in the background',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          hasBackgroundPermission = true;
-        }
-      }
-
       var hasPermission = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
@@ -44,6 +22,28 @@ export const initPermissions = async () => {
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           hasPermission = true;
+        }
+      }
+
+      var hasBackgroundPermission = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+      );
+
+      if (!hasBackgroundPermission) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+          {
+            title: 'Location Permission',
+            message:
+              'In order to get cellular info, ' +
+              'the app needs permission to access the device location in the background',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          hasBackgroundPermission = true;
         }
       }
 

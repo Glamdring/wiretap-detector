@@ -23,6 +23,9 @@ export const refreshRanges = async (db?: SQLiteDatabase, asn?: string) => {
   }
 
   const telecomASN = asn ? { asn } : await mobileOperatorsRepo.getSelectedAsn(db);
+  if (!telecomASN) {
+    return;
+  }
   try {
     const response = await fetch('https://ip.guide/' + telecomASN.asn);
     const ipRanges = ((await response.json()) as IpifyGuideResponse).routes.v4;
@@ -31,6 +34,6 @@ export const refreshRanges = async (db?: SQLiteDatabase, asn?: string) => {
       ipRanges.map(ip => ({ ip }))
     );
   } catch (ex) {
-    console.error(ex);
+    console.error('Failed to refresh IP ranges', ex);
   }
 };

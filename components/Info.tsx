@@ -10,6 +10,7 @@ import { IpRangeComponent } from './IpRange';
 import { NetInfoStateType, useNetInfo } from '@react-native-community/netinfo';
 import { refreshRanges } from '../lib/get-ranges';
 import { Log, logRepo } from '../lib/db/log.repo';
+import { initUserSettings } from '../lib/db/init-data';
 
 type InfoProps = {
   deps: {
@@ -17,6 +18,7 @@ type InfoProps = {
   };
   selectedAsn: AsnDb;
   clickedRefreshAndCompare: (insideIpRange: boolean) => void;
+  initializedAsn: (asn: AsnDb) => void;
 };
 const styles = StyleSheet.create({
   container: {
@@ -59,7 +61,12 @@ const IpAddress = (props: {
   }
 };
 
-export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps) => {
+export const Info = ({
+  deps,
+  selectedAsn,
+  clickedRefreshAndCompare,
+  initializedAsn,
+}: InfoProps) => {
   const theme = useTheme();
 
   const [ip, setIp] = useState<string>();
@@ -94,10 +101,17 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
     const asnFromDb = await mobileOperatorsRepo.getSelectedAsn(deps.db);
     setAsn(asnFromDb);
   };
+
   const fetchIp = async () => {
     try {
       const ip = await getIp();
-      const userSettings = await userSettingsRepo.getUserSettings(deps.db);
+      let userSettings = await userSettingsRepo.getUserSettings(deps.db);
+      if (!userSettings) {
+        await initializeSettings(ip, deps.db);
+        userSettings = await userSettingsRepo.getUserSettings(deps.db);
+        initializedAsn(await mobileOperatorsRepo.getSelectedAsn(deps.db));
+        await getSelectedAsn();
+      }
       userSettings.latestIp = ip;
       await userSettingsRepo.updateUserSettingItems(deps.db, [userSettings]);
       setIp(ip);
@@ -107,6 +121,45 @@ export const Info = ({ deps, selectedAsn, clickedRefreshAndCompare }: InfoProps)
       setError(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const initializeSettings = async (ip, dbDep) => {
+    // initialize the ASN settings by obtaining the ASN details by the current IP
+    const fetch = require('fetch-retry')(global.fetch);
+    const response = await fetch('https://ip.guide/' + ip);
+    const responseJSON = await response.json();
+    console.log('IP details: ' + JSON.stringify(responseJSON));
+
+    const autonomousSystem = responseJSON['network']['autonomous_system'];
+
+    const asns = await mobileOperatorsRepo.getAsns(dbDep);
+
+    if (!autonomousSystem) {
+      console.log('Failed to obtain ASN');
+      const settings = initUserSettings(asns[0].id);
+      settings.latestIp = ip;
+      await userSettingsRepo.saveUserSettingItems(dbDep, settings);
+      return;
+    }
+
+    const asn = 'AS' + autonomousSystem['asn'];
+    const organization = autonomousSystem['organization'];
+    const countryCode = autonomousSystem['country'];
+
+    const existingAsn = asns.find(e => e.asn == asn);
+    if (existingAsn) {
+      const settings = initUserSettings(existingAsn.id);
+      settings.latestIp = ip;
+      await userSettingsRepo.saveUserSettingItems(dbDep, settings);
+    } else {
+      // create new ASN
+      const newAsn = await mobileOperatorsRepo.saveAsnItems(dbDep, [
+        { asn: asn, operatorName: organization, countryCode: countryCode },
+      ]);
+      const settings = initUserSettings(newAsns.id);
+      settings.latestIp = ip;
+      await userSettingsRepo.saveUserSettingItems(dbDep, settings);
     }
   };
 

@@ -8,7 +8,7 @@ import { AsnDb, mobileOperatorsRepo } from './lib/db/mobile-operator.repo';
 import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import { Platform, PermissionsAndroid, View, StyleSheet, ScrollView } from 'react-native';
 import { OperatorsTable } from './components/OperatorsTable';
-import { initAsns, initUserSettings } from './lib/db/init-data';
+import { initAsns } from './lib/db/init-data';
 import { userSettingsRepo } from './lib/db/user-setting.repo';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LogTable } from './components/LogTable';
@@ -58,10 +58,7 @@ export default function App() {
       if (!asnsFromDb.length) {
         await mobileOperatorsRepo.saveAsnItems(dbDep, initAsns);
       }
-      if (!userSettings) {
-        const firstAsn = await mobileOperatorsRepo.getAsns(dbDep);
-        await userSettingsRepo.saveUserSettingItems(dbDep, initUserSettings(firstAsn[0].id));
-      }
+
       if (!ipRanges || ipRanges.length < 1) {
         await refreshRanges(dbDep);
       }
@@ -88,6 +85,10 @@ export default function App() {
     setSelectedAsn(asn);
   };
 
+  const initializedAsn = (asn: AsnDb) => {
+    setSelectedAsn(asn);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={theme}>
@@ -104,6 +105,7 @@ export default function App() {
                       <Info
                         clickedRefreshAndCompare={handleRefreshAndCompare}
                         selectedAsn={selectedAsn}
+                        initializedAsn={initializedAsn}
                         deps={{ db }}
                       />
                     </View>

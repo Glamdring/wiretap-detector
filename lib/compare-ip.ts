@@ -13,6 +13,8 @@ import Telephony from 'react-native-telephony-manager';
 import { Platform, PermissionsAndroid } from 'react-native';
 import GetLocation from 'react-native-get-location';
 import { initPermissions } from './init-permissions';
+import { AsnDb, mobileOperatorsRepo } from './db/mobile-operator.repo';
+import { initUserSettings } from './db/init-data';
 
 export type IP = string;
 let ipRegex = /[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/;
@@ -49,12 +51,13 @@ export const compareIP = async (db?: SQLiteDatabase): Promise<boolean> => {
     notifyProblem();
   }
 
+  const userSettings = await userSettingsRepo.getUserSettings(db);
+
   if (!ip || ip == '') {
     ip = 'Unavailable';
     notifyProblem();
   }
 
-  const userSettings = await userSettingsRepo.getUserSettings(db);
   const ipRanges = await ipRangesRepo.getIpRange(db);
   const ipRangesParsed = ipRanges.map(ipRange => ipRange.ip);
 
