@@ -106,7 +106,8 @@ export const Info = ({
     try {
       const ip = await getIp();
       let userSettings = await userSettingsRepo.getUserSettings(deps.db);
-      if (!userSettings) {
+      if (!userSettings || !userSettings.operatorId) {
+        console.log('Missing user settings; initializing');
         await initializeSettings(ip, deps.db);
         userSettings = await userSettingsRepo.getUserSettings(deps.db);
         initializedAsn(await mobileOperatorsRepo.getSelectedAsn(deps.db));

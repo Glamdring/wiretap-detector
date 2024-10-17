@@ -17,6 +17,7 @@ import { DeleteWarning } from './DeleteWarning';
 import { UserSetting, userSettingsRepo } from '../lib/db/user-setting.repo';
 import { SelectAsnWarning } from './SelectAsnWarning';
 import { refreshRanges } from '../lib/get-ranges';
+import { showMessage, hideMessage } from 'react-native-flash-message';
 
 export type OperatorsTableProps = {
   deps: {
@@ -119,9 +120,17 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
   };
 
   const handleRowPress = async (payload: { asn: AsnDb; userSettingId: number }) => {
-    const { asn, userSettingId } = payload;
-    setSelectAsnModal(true);
-    setSelectAsnModalProps(payload);
+    try {
+      const { asn, userSettingId } = payload;
+      setSelectAsnModal(true);
+      setSelectAsnModalProps(payload);
+    } catch (ex) {
+      console.error('Failed to change operator', ex);
+      showMessage({
+        message: ex.message,
+        type: 'info',
+      });
+    }
   };
 
   return (
@@ -138,7 +147,7 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
                 <DataTable.Row
                   onPress={() =>
                     asn.id !== userSetting?.operatorId
-                      ? handleRowPress({ asn, userSettingId: userSetting.id })
+                      ? handleRowPress({ asn, userSettingId: userSetting?.id })
                       : null
                   }
                   key={asn.id}
