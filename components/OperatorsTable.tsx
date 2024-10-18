@@ -137,9 +137,9 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
     <View style={styles.container}>
       <DataTable>
         <DataTable.Header>
-          <DataTable.Title style={{ flex: 2 }}>Name</DataTable.Title>
-          <DataTable.Title style={{ flex: 1 }}>ASN</DataTable.Title>
-          <DataTable.Title style={{ flex: 1 }}>Actions</DataTable.Title>
+          <DataTable.Title style={{ flex: 4 }}>Name</DataTable.Title>
+          <DataTable.Title style={{ flex: 2 }}>ASN</DataTable.Title>
+          <DataTable.Title style={{ flex: 3 }}>Actions</DataTable.Title>
         </DataTable.Header>
         {asnList
           ? asnList.map((asn: AsnDb) => {
@@ -152,7 +152,7 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
                   }
                   key={asn.id}
                 >
-                  <DataTable.Cell style={{ flex: 2 }}>
+                  <DataTable.Cell style={{ flex: 4 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <Text>
                         {asn.operatorName} ({asn.countryCode})
@@ -164,8 +164,8 @@ export const OperatorsTable = ({ deps, changedAsn }: OperatorsTableProps) => {
                       )}
                     </View>
                   </DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 1 }}>{asn.asn}</DataTable.Cell>
-                  <DataTable.Cell style={{ flex: 1 }}>
+                  <DataTable.Cell style={{ flex: 2 }}>{asn.asn}</DataTable.Cell>
+                  <DataTable.Cell style={{ flex: 3 }}>
                     <IconButton
                       icon={'pencil'}
                       size={25}
