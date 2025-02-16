@@ -19,3 +19,7 @@ The following features are on the roadmap:
 - Review [AKA process](https://www.ericsson.com/en/blog/2021/9/authentication-and-key-agreements) for potential clues on detection
 
 - Show the failure reasons in a readable way in the dialog
+
+- Make a centralized database with detections metadata
+
+- Compare with public cell databases; compare more cell metadata
